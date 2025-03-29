@@ -7,4 +7,28 @@
         bootstrapServers: oravm05:9092
         topic: minio-events
       steps:
-        - log: ${body}
+        - log:
+            message: ${body} ${headers}
+        - setHeader:
+            id: setHeader-1335
+            expression:
+              jq:
+                expression: .Key | split("/")[1]
+            name: CamelAwsS3Key
+        - setHeader:
+            id: setHeader-3392
+            expression:
+              jq:
+                expression: .Key | split("/")[0]
+            name: CamelAwsS3OverrideBucketName
+        - log:
+            id: log-2675
+            message: ${body}
+        - to:
+            id: to-2802
+            uri: aws2-s3://dummybucket
+        - to:
+            id: to-1213
+            uri: file
+            parameters:
+              directoryName: download
