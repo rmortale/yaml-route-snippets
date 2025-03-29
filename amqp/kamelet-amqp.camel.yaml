@@ -1,0 +1,12 @@
+- route:
+    id: route-3264
+    from:
+      id: from-8614
+      uri: kamelet:jms-amqp-10-source
+      parameters:
+        destinationName: orders
+        remoteURI: amqp://activemq:5671
+      steps:
+        - log:
+            id: log-5664
+            message: ${body}

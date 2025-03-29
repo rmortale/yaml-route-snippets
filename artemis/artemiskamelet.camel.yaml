@@ -1,0 +1,13 @@
+- route:
+    from:
+      uri: "kamelet:jms-pooled-apache-artemis-source"
+      parameters:
+        destinationName: "orders"
+        brokerURL: "{{artemis_url}}"
+        username: "{{artemis_user}}"
+        password: "{{artemis_password}}"
+
+     
+      steps:
+        - to:
+            uri: "kamelet:log-sink"

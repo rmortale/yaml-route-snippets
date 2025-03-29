@@ -1,0 +1,13 @@
+- beans:
+  - name: ibmCf
+    type: com.ibm.mq.jakarta.jms.MQXAConnectionFactory
+    properties:
+      hostName: ibmmq.internal
+      port: 1414
+      queueManager: QM1
+      channel: DEV.APP.SVRCONN
+      transportType: 1
+    script: |
+      bean.setStringProperty("userID", "app")
+      bean.setStringProperty("password", "passw0rd")
+     

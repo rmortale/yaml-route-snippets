@@ -1,0 +1,37 @@
+
+# camel-k: property=file:app.properties
+
+- route:
+    id: artemis-kamelet-xpath-01
+    from:
+      uri: "kamelet:jms-pooled-apache-artemis-source"
+      parameters:
+        destinationName: "{{workday_source_queue}}"
+        brokerURL: "{{artemis_url}}"
+        username: "{{artemis_user}}"
+        password: "{{artemis_password}}"
+
+      steps:
+        - setHeader:
+            name: CamelAwsS3Key
+            xpath:
+              expression: /company/name
+              resultType: java.lang.String
+        - to:
+            uri: aws2-s3://{{aws_s3_bucket}}
+        - log:
+            message: ${body}
+        - marshal:
+            base64: {}
+        - log:
+            message: ${body}
+        - convertBodyTo:
+            type: java.lang.String
+        - to:
+            uri: mustache:file://soap.mustache
+        
+        - to:
+            uri: file:downloads
+        - log:
+            message: ${headers}
+

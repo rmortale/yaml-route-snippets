@@ -1,0 +1,20 @@
+- route:
+    id: route-1340
+    from:
+      id: from-2055
+      uri: imap
+      parameters:
+        delay: 5000
+        host: localhost
+        password: secret
+        port: 14143
+        username: me@egon.de
+      steps:
+        - log: ${headers}
+        - split:
+            id: split-3437
+            steps:
+              - log: ${body}
+            expression:
+              method:
+                beanType: org.apache.camel.component.mail.SplitAttachmentsExpression

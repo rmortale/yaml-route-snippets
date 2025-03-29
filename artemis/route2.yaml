@@ -1,0 +1,24 @@
+beans:
+  - name: connectionFactoryBean
+    properties:
+      brokerURL: '{{brokerURL}}'
+      password: '{{?password}}'
+      user: '{{?username}}'
+    type: '#class:org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory'
+  - name: pooledFactoryBean
+    properties:
+      connectionFactory: '#bean:{{connectionFactoryBean}}'
+      connectionIdleTimeout: '{{connectionIdleTimeout}}'
+      maxIdleSessionsPerConnection: '{{maxIdleSessionsPerConnection}}'
+      maxSessionsPerConnection: '{{maxSessionsPerConnection}}'
+    type: '#class:org.messaginghub.pooled.jms.JmsPoolConnectionFactory'
+
+route:
+    from:
+      parameters:
+        connectionFactory: '#bean:{{pooledFactoryBean}}'
+      steps:
+      - to:
+          uri: kamelet:sink
+      uri: jms:{{destinationType}}:{{destinationName}}
+    id: jms-pooled-apache-artemis-source

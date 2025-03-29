@@ -1,0 +1,10 @@
+- route:
+    id: route-1631
+    from:
+      id: from-2918
+      uri: kamelet:kafka-not-secured-source
+      parameters:
+        bootstrapServers: oravm05:9092
+        topic: minio-events
+      steps:
+        - log: ${body}

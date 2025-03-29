@@ -1,0 +1,29 @@
+- route:
+    from:
+      uri: "kamelet:jms-pooled-apache-artemis-source"
+      parameters:
+        destinationName: "{{app.queue-name}}"
+        brokerURL: "{{app.broker-url}}"
+        username: "{{app.username}}"
+        password: "{{app.password}}"
+      steps:
+        - setHeader:
+            name: CamelAwsS3Key
+            xpath:
+              expression: /company/name
+              resultType: java.lang.String
+        - to:
+            uri: aws2-s3://{{app.aws-s3-bucket}}
+        - log:
+            message: ${body}
+        - marshal:
+            base64: {}
+        - log:
+            message: ${body}
+        - convertBodyTo:
+            type: String
+            charset: UTF-8
+        - to:
+            uri: mustache:{{app.template}}
+        - log:
+            message: ${body}    

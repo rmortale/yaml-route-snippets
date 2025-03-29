@@ -1,0 +1,24 @@
+- route:
+    id: route-4281
+    from:
+      uri: activemq
+      parameters:
+        destinationName: from.camel.01
+        destinationType: queue
+        jmsMessageType: Text
+      steps:
+        - setHeader:
+            name: CamelAwsS3Key
+            xpath:
+              expression: /company/name
+              resultType: java.lang.String
+        - setHeader:
+            constant:
+              expression: getObject
+            name: CamelAwsS3Operation
+        - to:
+            uri: aws2-s3://testbucket
+        - to:
+            uri: file:downloads
+        - log:
+            message: ${headers}
