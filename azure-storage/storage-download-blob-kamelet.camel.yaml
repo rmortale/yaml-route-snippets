@@ -1,0 +1,11 @@
+- route:
+    id: route-3960
+    from:
+      uri: "kamelet:azure-storage-blob-source"
+      parameters:
+        containerName: devt-container
+        accountName: devtstorage
+        deleteAfterRead: true
+      steps:
+        - log: "Downloaded: ${body}"
+        

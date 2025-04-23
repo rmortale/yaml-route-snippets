@@ -1,0 +1,16 @@
+- route:
+    id: route-3960
+    from:
+      uri: "kamelet:timer-source"
+      parameters:
+        period: 10000
+        message: "Hello World"
+      steps:
+        - log: ${body}
+        - to:
+            id: to-9259
+            uri: kamelet:azure-storage-blob-sink
+            parameters:
+              containerName: devt-container
+              accountName: devtstorage
+        - log: "Blob uploaded successfully ${headers}"

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: joke
+    app.kubernetes.io/runtime: camel
+  name: joke
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: joke
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: joke
+    spec:
+      containers:
+      - image: joke:1.0-SNAPSHOT
+        name: joke
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
