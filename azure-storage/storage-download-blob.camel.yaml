@@ -14,6 +14,5 @@
               blobName: pom.xml
               fileDir: ./
               operation: downloadBlobToFile
-              accessKey: xxx
               credentialType: "SHARED_ACCOUNT_KEY"
         - log: "Downloaded blob to file ${headers}"
