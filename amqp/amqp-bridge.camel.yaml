@@ -1,0 +1,21 @@
+- route:
+    id: route-2432
+    from:
+      id: from-5379
+      uri: amqp
+      parameters:
+        connectionFactory: "#amqp1"
+        destinationName: vvz.from.queue.01
+        destinationType: queue
+        exchangePattern: InOnly
+      steps:
+        - log:
+            id: log-4171
+            message: ${headers}
+- beans:
+    - name: amqp1
+      properties:
+        jms.password: admin
+        hostname: localhost
+        jms.username: admin
+      type: org.apache.qpid.jms.JmsConnectionFactory
