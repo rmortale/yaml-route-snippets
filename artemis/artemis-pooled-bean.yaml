@@ -14,11 +14,13 @@ beans:
     type: '#class:org.messaginghub.pooled.jms.JmsPoolConnectionFactory'
 
 route:
-    from:
-      parameters:
-        connectionFactory: '#bean:{{pooledFactoryBean}}'
-      steps:
-      - to:
-          uri: kamelet:sink
-      uri: jms:{{destinationType}}:{{destinationName}}
-    id: jms-pooled-apache-artemis-source
+  id: jms-pooled-apache-artemis-source
+  from:
+    uri: jms:{{destinationType}}:{{destinationName}}
+    parameters:
+      connectionFactory: '#bean:{{pooledFactoryBean}}'
+    steps:
+    - to:
+        uri: kamelet:sink
+  
+  
