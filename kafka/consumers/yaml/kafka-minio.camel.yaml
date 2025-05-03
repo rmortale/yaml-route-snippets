@@ -1,10 +1,11 @@
 - route:
-    id: route-1631
+    id: kafka-minio
     from:
       id: from-2918
       uri: kamelet:kafka-not-secured-source
       parameters:
-        bootstrapServers: oravm05:9092
+        bootstrapServers: oravm05:9090
+        consumerGroup: minio-events
         topic: minio-events
       steps:
         - log:
@@ -21,19 +22,6 @@
               jq:
                 expression: .Key | split("/")[0]
             name: CamelAwsS3OverrideBucketName
-        - setHeaders:
-            id: setHeaders-2010
-            headers:
-              - expression:
-                  constant:
-                    expression: ertertert
-                    resultType: java.lang.String
-              - expression:
-                  constant:
-                    id: ert
-                    expression: ertert
-                    resultType: java.lang.Double
-              - null
         - log:
             id: log-2675
             message: ${body}

@@ -1,0 +1,13 @@
+- route:
+    id: kafka-producer
+    from:
+      uri: kamelet:timer-source
+      parameters:
+        period: "1000"
+        message: "test"
+      steps:
+        - to:
+            uri: "kamelet:kafka-not-secured-sink"
+            parameters:
+              bootstrapServers: oravm05:9092
+              topic: test

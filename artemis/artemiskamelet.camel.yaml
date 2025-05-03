@@ -1,4 +1,5 @@
 - route:
+    id: artemis-pooled-kamelet
     from:
       uri: "kamelet:jms-pooled-apache-artemis-source"
       parameters:
