@@ -1,14 +1,14 @@
 - route:
     id: artemis-pooled-kamelet
     from:
-      uri: "kamelet:jms-pooled-apache-artemis-source"
+      uri: "kamelet:jms-apache-artemis-source"
       parameters:
-        destinationName: "orders"
-        brokerURL: "{{artemis_url}}"
-        username: "{{artemis_user}}"
-        password: "{{artemis_password}}"
-
+        destinationName: orders
+        brokerURL: tcp://oravm05:61616
      
       steps:
         - to:
             uri: "kamelet:log-sink"
+        - throwException:
+            exceptionType: "java.lang.RuntimeException"
+            message: "This is a test exception from Artemis Kamelet"
