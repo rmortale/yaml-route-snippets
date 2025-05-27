@@ -1,0 +1,10 @@
+- route:
+    id: route-1766
+    from:
+      id: from-5712
+      uri: kafka:{{app.topic}}
+      parameters: {}
+      steps:
+        - log:
+            id: log-2621
+            message: ${body}
