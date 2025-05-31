@@ -1,0 +1,11 @@
+- rest:
+    path: api
+    get:
+      - path: cars
+        to: direct:get
+        produces: text/plain
+    post:
+      - path: cars
+        to: direct:create
+        consumes: application/json
+        produces: application/json

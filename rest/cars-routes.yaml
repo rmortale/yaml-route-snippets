@@ -1,0 +1,23 @@
+ # Add car
+- route:
+    from:
+      uri: direct:create
+      steps:
+        - setBody:
+            expression:
+              simple:
+                expression: >-
+                  INSERT INTO cars (brand, model, year)
+                  VALUES ('${header.brand}', '${header.model}', ${header.year})
+        - log: "body is ${body}"
+
+# Get all cars
+- route:
+    from:
+      uri: direct:get
+      steps:
+        - setBody:
+            expression:
+              simple:
+                expression: SELECT * FROM cars
+        - log: "body is ${body}"
