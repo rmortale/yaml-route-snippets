@@ -1,0 +1,9 @@
+- route:
+    from:
+      uri: timer:yaml
+      parameters:
+        period: "1000"
+      steps:
+        - setBody:
+            simple: "Secret from Vault: {{hashicorp:secret:database#url:na}}"
+        - log: ${body} 

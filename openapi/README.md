@@ -2,6 +2,12 @@
 
 Find useful examples about how to expose an Open API specification in a Camel K integration.
 
+## Run with camel cli
+
+```
+camel run greetings.yaml greetings-api.json
+```
+
 ## Greetings example
 
 Deploy the examples running
