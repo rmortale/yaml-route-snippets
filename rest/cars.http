@@ -8,3 +8,7 @@ Content-Type: application/json
   "model": "Corolla",
   "year": 2021
 }
+
+
+#### Get all cars
+GET http://localhost:8080/api/cars

@@ -18,12 +18,12 @@
 # ---------------------------------------------------------------------------
 
 - rest:
-    openApi:
-      specification: greetings-api.json
+       openApi:
+            specification: greetings-api.json
 
 - from:
-   uri: "direct:greeting-api"
-   steps:
-    - to: "log:api?showAll=true&multiline=true"
-    - setBody:
-       simple: "Hello from ${headers.name}"
+       uri: "direct:greeting-api"
+       steps:
+            - to: "log:api?showAll=true&multiline=true"
+            - setBody:
+                   simple: "Hello from ${headers.name}"

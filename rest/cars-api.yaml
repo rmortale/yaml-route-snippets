@@ -8,5 +8,4 @@
       - path: cars
         to: direct:create
         consumes: application/json
-        produces: application/json
-        
+        produces: text/plain
