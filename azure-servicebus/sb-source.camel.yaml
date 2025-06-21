@@ -1,0 +1,15 @@
+- route:
+    id: route-5073
+    from:
+      id: from-3865
+      uri: "kamelet:azure-servicebus-source"
+      parameters:
+        # Connection string to the Azure Service Bus
+        # Replace with your actual connection string
+        # Use "RAW(...)" to avoid escaping issues
+        connectionString: "RAW(Endpoint=sb://xxx.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=xxx)"
+        topicOrQueueName: demoqueue
+      steps:
+        - log:
+            id: log-1124
+            message: ${body} - ${headers}

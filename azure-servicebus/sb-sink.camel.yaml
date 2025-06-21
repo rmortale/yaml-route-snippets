@@ -1,0 +1,21 @@
+- route:
+    id: route-5073
+    from:
+      id: from-3865
+      uri: "kamelet:timer-source"
+      parameters:
+        period: 5000
+        message: "Hello World"
+      steps:
+        - log:
+            id: log-1124
+            message: ${body}
+        - to:
+            id: to-5074
+            uri: kamelet:azure-servicebus-sink
+            parameters:
+              # Connection string to the Azure Service Bus
+              # Replace with your actual connection string
+              # Use "RAW(...)" to avoid escaping issues
+              connectionString: "RAW(Endpoint=sb://xxx.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=xxx)"
+              topicOrQueueName: demoqueue
