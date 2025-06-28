@@ -5,7 +5,8 @@
       uri: kamelet:jms-amqp-10-source
       parameters:
         destinationName: orders
-        remoteURI: amqp://activemq:5671
+        # without RAW() the URI is not parsed correctly
+        remoteURI: RAW(amqp://oravm05:5672?jms.username=artemis&jms.password=artemis)
       steps:
         - log:
             id: log-5664

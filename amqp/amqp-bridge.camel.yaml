@@ -6,7 +6,6 @@
       parameters:
         connectionFactory: "#amqp1"
         destinationName: vvz.from.queue.01
-        destinationType: queue
         exchangePattern: InOnly
       steps:
         - log:
@@ -15,7 +14,5 @@
 - beans:
     - name: amqp1
       properties:
-        jms.password: admin
-        hostname: localhost
-        jms.username: admin
+        remoteURI: "amqp://oravm05:5672?jms.username=artemis&jms.password=artemis"
       type: org.apache.qpid.jms.JmsConnectionFactory
