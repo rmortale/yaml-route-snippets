@@ -1,0 +1,12 @@
+- route:
+    id: route-2428
+    from:
+      uri: timer
+      parameters:
+        delay: "5000"
+        period: "1000"
+        timerName: yaml
+      steps:
+        - setBody:
+            simple: Hello Camel from ${routeId}
+        - log: ${body}
