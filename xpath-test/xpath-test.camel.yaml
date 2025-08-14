@@ -1,0 +1,19 @@
+- route:
+    id: route-3142
+    from:
+      id: from-2386
+      uri: direct
+      parameters:
+        name: directin
+      steps:
+        - log: ${body}
+        - setHeader:
+            name: demoheader
+            xpath:
+              namespace:
+                - key: bk
+                  value: http://example.com/books
+              expression: /bk:library/bk:book/bk:author
+              resultType: String
+        - log: "header: ${header.demoheader}"
+
