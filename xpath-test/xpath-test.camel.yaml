@@ -6,14 +6,13 @@
       parameters:
         name: directin
       steps:
-        - log: ${body}
         - setHeader:
             name: demoheader
             xpath:
+              expression: /e:employees/e:employee[1]/name
               namespace:
-                - key: bk
-                  value: http://example.com/books
-              expression: /bk:library/bk:book/bk:author
+                - key: e
+                  value: http://example.com/employees
               resultType: String
         - log: "header: ${header.demoheader}"
 

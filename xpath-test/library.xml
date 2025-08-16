@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bk:library xmlns:bk="http://example.com/books">
-  <bk:book>
-    <bk:title>The Catcher in the Rye</bk:title>
-    <bk:author>J.D. Salinger</bk:author>
-  </bk:book>
-</bk:library>
