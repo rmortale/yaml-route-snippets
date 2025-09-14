@@ -1,0 +1,54 @@
+- route:
+    errorHandler:
+      deadLetterChannel:
+        deadLetterUri: file:dlq
+        useOriginalMessage: true
+        redeliveryPolicy:
+          redeliveryDelay: "1000"
+          useExponentialBackOff: true
+          backOffMultiplier: 1.5
+          maximumRedeliveries: 5
+          retryAttemptedLogInterval: 2
+          retryAttemptedLogLevel: WARN
+          retriesExhaustedLogLevel: ERROR
+          #logExhausted: true
+          logHandled: true
+          logExhaustedMessageHistory: false
+          logStackTrace: false
+    
+    
+    from:
+      uri: jms:queue:DEV.QUEUE.1
+      parameters:
+        connectionFactory: '#bean:wmqConnectionFactory'
+        cacheLevelName: CACHE_CONSUMER
+      steps:
+        - to:
+            uri: jms:queue:queue.01
+            parameters:
+              connectionFactory: '#bean:artemisConnectionFactory'
+              cacheLevelName: CACHE_PRODUCER
+        - log: ${body}
+
+
+
+- beans:
+  - name: artemisConnectionFactory
+    type: '#class:org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory'
+    properties:
+      brokerURL: '{{artemis.brokerURL}}'
+      password: '{{artemis.password}}'
+      user: '{{artemis.username}}'
+  
+  - name: wmqConnectionFactory
+    type: "#class:com.ibm.mq.jakarta.jms.MQConnectionFactory"
+    properties:
+      XMSC_WMQ_HOST_NAME: '{{ibm.serverName}}'
+      XMSC_WMQ_PORT: '{{ibm.serverPort}}'
+      XMSC_WMQ_CHANNEL: '{{ibm.channel}}'
+      XMSC_WMQ_QUEUE_MANAGER: '{{ibm.queueManager}}'
+      XMSC_WMQ_CONNECTION_MODE: 1
+      XMSC_USERID: '{{ibm.username}}'
+      XMSC_PASSWORD: '{{ibm.password}}'
+      XMSC_CLIENT_ID: '{{?ibm.clientId}}'
+      XMSC_WMQ_SSL_CIPHER_SUITE: '{{?ibm.sslCipherSuite}}'

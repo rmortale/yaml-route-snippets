@@ -1,0 +1,35 @@
+- route:
+    from:
+      uri: jms:queue:DEV.QUEUE.1
+      parameters:
+        connectionFactory: '#bean:wmqConnectionFactory'
+        #lazyCreateTransactionManager: true
+        #transacted: true
+        #transactionManager: '#ref:transactionManager'
+        
+      steps:
+        - transacted: {}
+        - log: ${body}
+        # - throwException:
+        #     exceptionType: "java.lang.RuntimeException"
+        #     message: "Simulated exception for testing"
+
+
+- beans:
+  - name: jtaTransactionManager
+    type: "#class:org.springframework.transaction.jta.JtaTransactionManager"
+    properties:
+      transactionManager: '#ref:transactionManager'
+
+  - name: wmqConnectionFactory
+    type: "#class:com.ibm.mq.jakarta.jms.MQXAConnectionFactory"
+    properties:
+      XMSC_WMQ_HOST_NAME: '{{ibm.serverName}}'
+      XMSC_WMQ_PORT: '{{ibm.serverPort}}'
+      XMSC_WMQ_CHANNEL: '{{ibm.channel}}'
+      XMSC_WMQ_QUEUE_MANAGER: '{{ibm.queueManager}}'
+      XMSC_WMQ_CONNECTION_MODE: 1
+      XMSC_USERID: '{{ibm.username}}'
+      XMSC_PASSWORD: '{{ibm.password}}'
+      XMSC_CLIENT_ID: '{{?ibm.clientId}}'
+      XMSC_WMQ_SSL_CIPHER_SUITE: '{{?ibm.sslCipherSuite}}'

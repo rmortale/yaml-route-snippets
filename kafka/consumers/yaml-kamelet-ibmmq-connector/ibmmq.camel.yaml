@@ -1,0 +1,11 @@
+- route:
+    id: kafka-ibm
+    from:
+      uri: kamelet:kafka-not-secured-source
+      parameters:
+        bootstrapServers: oravm05:9092
+        consumerGroup: ibmmq-events
+        topic: MQ.DEV.QUEUE.3
+      steps:
+        - log:
+            message: ${body} ${headers}
