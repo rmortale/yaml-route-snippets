@@ -1,0 +1,52 @@
+# poll db about new records
+- route:
+    from:
+      uri: timer:poll-new-records
+      parameters:
+        period: 5000
+      steps:
+        - setBody:
+            constant: SELECT * FROM minio_events_journal WHERE STATUS='NEW' ORDER BY event_time LIMIT 50
+        - to:
+            uri: jdbc:dataSource
+        - split:
+            simple: ${body}
+            steps:
+              - setHeader:
+                  name: RecordId
+                  simple: ${body[id]}
+              - setBody:
+                  simple: ${body[event_data].toString}
+              - setHeader:
+                  name: MinioFilename
+                  jq:
+                    expression: .Records[0].s3.object.key
+                    resultType: String
+              - setHeader:
+                  name: MinioBucket
+                  jq:
+                    expression: .Records[0].s3.bucket.name
+                    resultType: String
+              - setHeader:
+                  name: MinioPostConnectionQueue
+                  jq:
+                    expression: .Records[0].s3.object.userMetadata."X-Amz-Meta-Postcon-Queue"
+                    resultType: String
+              - choice:
+                  when:
+                    - simple: "${header.MinioPostConnectionQueue} == null"
+                      steps:
+                        - log:
+                            message: ERROR missing post connection queue name in metadata! Please set it like this "postcon-queue=postcon.queue.01" when uploading file.
+                        - setBody:
+                            constant: UPDATE minio_events_journal SET status='ERROR',status_time=now(),error_message='ERROR missing post connection queue name in metadata! Please set it like this "postcon-queue=postcon.queue.01" when uploading file.' WHERE ID=:?RecordId
+                        - to:
+                            uri: jdbc:dataSource?useHeadersAsParameters=true
+                  otherwise:
+                    steps:
+                      - setBody:
+                          constant: UPDATE minio_events_journal SET retry_time=now(),status_time=now(),status='DOWNLOAD',bucket_name=:?MinioBucket,object_key=:?MinioFilename,queue_name=:?MinioPostConnectionQueue  WHERE ID=:?RecordId
+                      - to:
+                          uri: jdbc:dataSource?useHeadersAsParameters=true
+        - log:
+            message: Processed ${header.CamelJdbcRowCount} new files.

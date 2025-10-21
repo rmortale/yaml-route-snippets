@@ -1,15 +1,17 @@
 - route:
+    streamCache: false
     id: kafka-minio
     from:
       id: from-2918
       uri: kamelet:kafka-not-secured-source
       parameters:
-        bootstrapServers: oravm05:9090
-        consumerGroup: minio-events
-        topic: minio-events
+        bootstrapServers: oravm05:9092
+        consumerGroup: file-jms-events
+        topic: file.jms.events
+        
       steps:
         - log:
-            message: ${body} ${headers}
+            message: ${headers}
         - setHeader:
             id: setHeader-1335
             expression:
@@ -22,14 +24,32 @@
               jq:
                 expression: .Key | split("/")[0]
             name: CamelAwsS3OverrideBucketName
+        - setHeader:
+            expression:
+              jq:
+                expression: .Records[0].s3.object.userMetadata."X-Amz-Meta-Postcon-Queue"
+            name: post-conn-queue-name
         - log:
             id: log-2675
-            message: ${body}
+            message: ${headers}
         - to:
             id: to-2802
             uri: aws2-s3://dummybucket
         - to:
-            id: to-1213
-            uri: file
+            uri: sftp
             parameters:
-              directoryName: download
+              host: oravm05
+              username: foo
+              password: pass
+              port: 2222
+              directoryName: upload
+        - log:
+            message: Sftp response ${headers.CamelFtpReplyString}
+        - setBody:
+            simple:
+              expression: fileName:${headers.CamelFileNameProduced},fileSize:${headers.CamelAwsS3ContentLength}
+        - to:
+            uri: kamelet:jms-apache-artemis-sink
+            parameters:
+              destinationName: postcon
+

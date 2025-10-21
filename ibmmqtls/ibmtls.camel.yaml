@@ -1,0 +1,8 @@
+- route:
+    from:
+      uri: kamelet:jms-ibm-mq-source
+      parameters:
+        destinationName: DEV.QUEUE.1
+      steps:
+        - log: ${body}
+       

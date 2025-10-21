@@ -1,0 +1,49 @@
+# poll db about retryable records
+- route:
+    from:
+      uri: timer:poll-retryable-records
+      parameters:
+        period: 10000
+      steps:
+        - setBody:
+            simple: SELECT * FROM minio_events_journal WHERE STATUS='RETRYABLE' and retry_num < ${properties:app.max.retries} and retry_time < now() ORDER BY event_time LIMIT 50
+        - to:
+            uri: jdbc:dataSource
+        - split:
+            simple: ${body}
+            steps:
+              - setHeader:
+                  name: RecordId
+                  simple: ${body[id]}
+              - log:
+                  message: Retrying file ${body[object_key]}..
+              - setBody:
+                  simple: UPDATE minio_events_journal SET STATUS='DOWNLOAD',status_time=now(),retry_num=retry_num+1,retry_time=NOW() + INTERVAL '${properties:app.retry.interval.minutes} minutes' WHERE ID=:?RecordId
+              - to:
+                  uri: jdbc:dataSource?useHeadersAsParameters=true
+        - log:
+            message: Retried ${header.CamelJdbcRowCount} records.
+
+# poll db about retryable exceeded records
+- route:
+    from:
+      uri: timer:poll-exceeded-records
+      parameters:
+        period: 10000
+      steps:
+        - setBody:
+            simple: SELECT * FROM minio_events_journal WHERE STATUS='RETRYABLE' and retry_num >= ${properties:app.max.retries} ORDER BY event_time LIMIT 50
+        - to:
+            uri: jdbc:dataSource
+        - split:
+            simple: ${body}
+            steps:
+              - setHeader:
+                  name: RecordId
+                  simple: ${body[id]}
+              - log:
+                  message: Max retries for file ${body[object_key]} exceeded.
+              - setBody:
+                  simple: UPDATE minio_events_journal SET STATUS='ERROR',status_time=now() WHERE ID=:?RecordId
+              - to:
+                  uri: jdbc:dataSource?useHeadersAsParameters=true

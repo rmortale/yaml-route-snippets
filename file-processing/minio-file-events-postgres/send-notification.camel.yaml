@@ -1,0 +1,43 @@
+# poll db about delivered records
+- route:
+    from:
+      uri: timer:poll-notification-records
+      parameters:
+        period: 10000
+      steps:
+        - setBody:
+            constant: SELECT * FROM minio_events_journal WHERE STATUS='DELIVERED' ORDER BY event_time LIMIT 50
+        - to:
+            uri: jdbc:dataSource
+        - split:
+            simple: ${body}
+            steps:
+              - setHeader:
+                  name: RecordId
+                  simple: ${body[id]}
+              - setHeader:
+                  name: BucketName
+                  simple: ${body[bucket_name]}
+              - setHeader:
+                  name: Filename
+                  simple: ${body[object_key]}
+              - setHeader:
+                  name: CamelJmsDestinationName
+                  simple: ${body[queue_name]}
+              - setBody:
+                  simple:
+                    expression: fileName:${headers.Filename}
+              - to:
+                  uri: kamelet:jms-apache-artemis-sink
+                  parameters:
+                    destinationName: dummy
+              - log:
+                  message: Sent notification to queue ${headers.CamelJMSDestinationProduced}.
+              - setBody:
+                  constant: UPDATE minio_events_journal SET status_time=now(),status='FINISHED' WHERE ID=:?RecordId
+              - to:
+                  uri: jdbc:dataSource?useHeadersAsParameters=true
+        - log:
+            message: Notified ${header.CamelJdbcRowCount} files.
+
+

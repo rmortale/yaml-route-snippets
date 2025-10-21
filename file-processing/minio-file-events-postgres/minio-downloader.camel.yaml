@@ -1,0 +1,91 @@
+# poll db about downloadable records
+- route:
+    routeConfigurationId: onException
+    streamCache: false
+    from:
+      uri: timer:poll-download-records
+      parameters:
+        period: 10000
+      steps:
+        - setBody:
+            constant: SELECT * FROM minio_events_journal WHERE STATUS='DOWNLOAD' ORDER BY event_time LIMIT 50
+        - to:
+            uri: jdbc:dataSource
+        - split:
+            parallelProcessing: true
+            simple: ${body}
+            steps:
+              - setHeader:
+                  name: RecordId
+                  simple: ${body[id]}
+              - setHeader:
+                  name: CamelAwsS3OverrideBucketName
+                  simple: ${body[bucket_name]}
+              - setHeader:
+                  name: CamelAwsS3Key
+                  simple: ${body[object_key]}
+              - setHeader:
+                  name: CamelJmsDestinationName
+                  simple: ${body[queue_name]}
+              - setBody:
+                  constant: UPDATE minio_events_journal SET STATUS='DELIVERING',status_time=now() WHERE ID=:?RecordId
+              - to:
+                  uri: jdbc:dataSource?useHeadersAsParameters=true
+              - to:
+                  uri: aws2-s3://dummybucket
+              - to:
+                  uri: sftp
+                  parameters:
+                    host: oravm05
+                    username: foo
+                    password: pass
+                    port: 2222
+                    directoryName: upload
+              - log:
+                  message: Uploaded ${headers.CamelFileNameProduced}. Sftp response ${headers.CamelFtpReplyString}
+              - setBody:
+                  constant: UPDATE minio_events_journal SET STATUS='DELIVERED',status_time=now() WHERE ID=:?RecordId
+              - to:
+                  uri: jdbc:dataSource?useHeadersAsParameters=true
+        - log:
+            message: Uploaded ${header.CamelJdbcRowCount} files.
+
+# set error status in db
+- route:
+    from:
+      uri: direct:abortWithErrorStatus
+      steps:
+        - setBody:
+            simple: UPDATE minio_events_journal SET status_time=now(),status='ERROR',error_message='Aborting. ${exception.message}.' WHERE ID=:?RecordId
+        - to:
+            uri: jdbc:dataSource?useHeadersAsParameters=true
+
+# set retryable status in db
+- route:
+    from:
+      uri: direct:retryable
+      steps:
+        - setBody:
+            simple: UPDATE minio_events_journal SET status_time=now(),status='RETRYABLE',error_message='${exception.message}.' WHERE ID=:?RecordId
+        - to:
+            uri: jdbc:dataSource?useHeadersAsParameters=true
+
+- routeConfiguration:
+    id: onException
+    onException:
+    - onException:
+        exception:
+          - "software.amazon.awssdk.services.s3.model.NoSuchKeyException"
+        handled:
+          constant: "true"
+        steps:
+          - to:
+              uri: direct:abortWithErrorStatus
+    - onException:
+        exception:
+          - "org.apache.camel.component.file.GenericFileOperationFailedException"
+        handled:
+          constant: "true"
+        steps:
+          - to:
+              uri: direct:retryable

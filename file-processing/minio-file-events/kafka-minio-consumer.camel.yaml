@@ -1,0 +1,40 @@
+- route:
+    from:
+      uri: kamelet:kafka-not-secured-source
+      parameters:
+        bootstrapServers: oravm05:9092
+        consumerGroup: file-jms-events
+        topic: file.jms.events
+      steps:
+        - setHeaders:
+            headers:
+              - name: MinioFilename
+                expression:
+                  jq:
+                    expression: .Records[0].s3.object.key
+                    resultType: String
+              - name: MinioBucketName    
+                expression:
+                  jq:
+                    expression: .Records[0].s3.bucket.name
+                    resultType: String
+              - name: MinioPostConnQueueName
+                expression:
+                  jq:
+                    expression: .Records[0].s3.object.userMetadata."X-Amz-Meta-Postcon-Queue"
+                    resultType: String
+        - choice:
+            when:
+              - simple: "${header.MinioPostConnQueueName} == null"
+                steps:
+                  - log:
+                      message: ERROR missing post connection queue name in metadata! Please set it like this "postcon-queue=postcon.queue.01" when uploading file.
+            otherwise:
+              steps:
+                - setBody:
+                    constant: INSERT INTO transfer_postcon(tracing_id, event_time, filename, bucketname, post_queue_name, status) VALUES (gen_random_uuid(), current_timestamp, :?MinioFilename, :?MinioBucketName, :?MinioPostConnQueueName, 'NEW')
+                - to:
+                    uri: jdbc:dataSource?useHeadersAsParameters=true
+                - log:
+                    message: Saved data about file received on minio to database.
+          

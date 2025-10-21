@@ -1,0 +1,41 @@
+# poll db about new records
+- route:
+    from:
+      uri: timer:poll-new-records
+      parameters:
+        period: 5000
+      steps:
+        - setBody:
+            constant: SELECT * FROM transfer_postcon WHERE STATUS='NEW' ORDER BY event_time LIMIT 10
+        - to:
+            uri: jdbc:dataSource
+        - split:
+            simple: ${body}
+            steps:
+              - log: processing row here ${body}
+              - to: direct:downloadDone
+
+# download file from minio
+- route:
+    from:
+      uri: direct:downloadFile
+      steps:
+        - 
+
+
+
+
+        
+# set downloaded status in db 
+- route:
+    from:
+      uri: direct:downloadDone 
+      steps:
+        - setHeader:
+            name: downloadId
+            simple: ${body['id']}
+        - setBody:
+            constant: UPDATE transfer_postcon SET STATUS='DOWNLOADED' WHERE ID=:?downloadId
+        - to:
+            uri: jdbc:dataSource?useHeadersAsParameters=true
+      
