@@ -4,3 +4,5 @@
 .idea
 target
 azure-storage/azure.properties
+kafka/ssl/ca.pem
+kafka/ssl/svc.pem
