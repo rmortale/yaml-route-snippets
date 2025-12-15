@@ -1,0 +1,12 @@
+- route:
+    from:
+      uri: "timer:timer-source"
+      parameters:
+        period: 10
+        repeatCount: 100
+      steps:
+        - setBody:
+            constant: "hello"
+        - log: ${body}
+        - to:
+            uri: kamelet:jms-ibm-mq-sink
