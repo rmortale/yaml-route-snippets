@@ -1,10 +1,34 @@
+# - route:
+#     from:
+#       uri: "kamelet:jms-apache-artemis-source"
+#       parameters:
+#         destinationName: vvz.queue.01
+#         brokerURL: tcp://localhost:61616
+     
+#       steps:
+#         - to:
+#             uri: "kamelet:log-sink"
+#         - throwException:
+#             exceptionType: "java.lang.RuntimeException"
+#             message: "This is a test exception from Artemis Kamelet"
+
+# - route:
+#     from:
+#       uri: "kamelet:jms-apache-artemis-source"
+#       parameters:
+#         destinationName: vvz.queue.02
+#         brokerURL: tcp://localhost:61616
+     
+#       steps:
+#         - to:
+#             uri: "kamelet:log-sink"
+        
 - route:
-    id: artemis-pooled-kamelet
     from:
       uri: "kamelet:jms-apache-artemis-source"
       parameters:
-        destinationName: orders
-        brokerURL: tcp://oravm05:61616
+        destinationName: vvz.queue.01
+        brokerURL: tcp://localhost:61616
      
       steps:
         - to:
