@@ -18,3 +18,5 @@
             expression:
               method:
                 beanType: org.apache.camel.component.mail.SplitAttachmentsExpression
+                
+

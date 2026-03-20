@@ -3,12 +3,12 @@
     id: kafka-minio
     from:
       id: from-2918
-      uri: kamelet:kafka-not-secured-source
+      uri: kamelet:kafka-source
       parameters:
         bootstrapServers: oravm05:9092
         consumerGroup: file-jms-events
         topic: file.jms.events
-        
+
       steps:
         - log:
             message: ${headers}
@@ -52,4 +52,3 @@
             uri: kamelet:jms-apache-artemis-sink
             parameters:
               destinationName: postcon
-
