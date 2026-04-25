@@ -1,0 +1,11 @@
+- route:
+    from:
+      uri: file:source
+      steps:
+        - split:
+            expression:
+              xtokenize:
+                expression: /company/address
+                mode: u
+                trim: true
+        - log: ${body}

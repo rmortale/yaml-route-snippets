@@ -1,0 +1,18 @@
+- route:
+    from:
+      uri: kamelet:jms-pooled-apache-artemis-source
+      parameters:
+        destinationName: mq.queue.01
+        brokerURL: tcp://oravm05:61616
+        username: artemis
+        password: artemis
+
+      steps:
+        - to:
+            uri: kamelet:jms-ibm-mq-sink
+            parameters:
+              destinationName: DEV.QUEUE.1
+        - log: Sent message ${headers}
+
+# run with
+# camel run --dependency=mvn:com.ibm.mq:com.ibm.mq.jakarta.client:9.4.2.0 --dev artemiskamelettomq.camel.yaml ibmmq-producer.properties

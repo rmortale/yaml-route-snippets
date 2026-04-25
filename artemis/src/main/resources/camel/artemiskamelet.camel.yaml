@@ -1,0 +1,10 @@
+- route:
+    from:
+      uri: "kamelet:jms-apache-artemis-source"
+      parameters:
+        destinationName: vvz.queue.01
+        brokerURL: tcp://oravm05:61616
+
+      steps:
+        - to:
+            uri: "kamelet:log-sink"

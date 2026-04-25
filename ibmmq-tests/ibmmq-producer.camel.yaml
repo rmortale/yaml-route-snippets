@@ -1,0 +1,14 @@
+- route:
+    from:
+      uri: file:input
+      steps:
+        - convertBodyTo: String
+        - split:
+            delimiter: \n
+            expression:
+              simple: ${body}
+        - log: ${body}
+        - to:
+            uri: kamelet:jms-ibm-mq-sink
+            parameters:
+              destinationName: DEV.QUEUE.1
